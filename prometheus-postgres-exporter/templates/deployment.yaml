@@ -69,6 +69,9 @@ spec:
           {{- if .Values.config.logLevel }}
           - "--log.level={{ .Values.config.logLevel }}"
           {{- end}}
+          {{- if .Values.config.logFmt }}
+          - "--log.format={{ .Values.config.logFmt }}"
+          {{- end}}
           env:
           {{- if .Values.config.datasourceSecret }}
           - name: DATA_SOURCE_NAME
