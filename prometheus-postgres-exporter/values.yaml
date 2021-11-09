@@ -5,8 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: quay.io/prometheuscommunity/postgres-exporter
-  tag: master
+  repository: docker.io/harssssshh/postgres-linux-loglevels
+  tag: latest
   pullPolicy: IfNotPresent
 
   ## Optionally specify an array of imagePullSecrets.
