@@ -91,10 +91,10 @@ securityContext: {}
 config:
   datasource:
     # Specify one of both datasource or datasourceSecret
-    host:
-    user: postgres
+    host: "dummy.capuqcvpsixp.ap-south-1.rds.amazonaws.com"
+    user: "postgres"
     # Only one of password and passwordSecret can be specified
-    password:
+    password: "Admin:Dummy"
     # Specify passwordSecret if DB password is stored in secret.
     passwordSecret: {}
     # Secret name
@@ -102,7 +102,7 @@ config:
     # Password key inside secret
     #  key:
     port: "5432"
-    database: ''
+    database: 'postgres'
     sslmode: disable
   datasourceSecret: {}
     # Specifies if datasource should be sourced from secret value in format: postgresql://login:password@hostname:port/dbname?sslmode=disable
