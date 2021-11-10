@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: quay.io/prometheuscommunity/postgres-exporter
+  repository: docker.io/harssssshh/postgres-linux-loglevels
   tag: latest
   pullPolicy: IfNotPresent
 
