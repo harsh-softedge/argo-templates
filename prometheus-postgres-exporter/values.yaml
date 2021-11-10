@@ -234,17 +234,18 @@ config:
             description: "Number of times this table has been analyzed by the autovacuum daemon"
 
     pg_prepared_xacts:
-      query: "SELECT pg_database.datname, pg_authid.rolname, gid FROM pg_prepared_xacts"
+      query: "SELECT pg_database.datname, pg_authid.rolname, gid FROM pg_prepared_xacts()"
       metrics:
-        - gid:
-            usage: "LABEL"
-            description: "Global Transaction Identifier that was assigned to the transaction"
-        - rolname:
-            usage: "GAUGE"
-            description: "Owner that was assigned to the transaction"
         - datname:
             usage: "GAUGE"
             description: "Name of the transaction in which transaction was executed."
+        - rolname:
+            usage: "GAUGE"
+            description: "Owner that was assigned to the transaction"
+        - gid:
+            usage: "LABEL"
+            description: "Global Transaction Identifier that was assigned to the transaction"
+
 
     pg_statio_user_tables:
       query: "SELECT current_database() datname, schemaname, relname, heap_blks_read, heap_blks_hit, idx_blks_read, idx_blks_hit, toast_blks_read, toast_blks_hit, tidx_blks_read, tidx_blks_hit FROM pg_statio_user_tables"
