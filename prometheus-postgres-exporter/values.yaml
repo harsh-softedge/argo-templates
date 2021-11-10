@@ -234,7 +234,7 @@ config:
             description: "Number of times this table has been analyzed by the autovacuum daemon"
 
     pg_prepared_xacts:
-      query: "SELECT current_database() datname, gid FROM pg_prepared_xacts"
+      query: "SELECT pg_database.datname, gid FROM pg_prepared_xacts"
       metrics:
         - gid:
             usage: "LABEL"
