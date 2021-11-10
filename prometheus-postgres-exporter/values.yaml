@@ -234,7 +234,7 @@ config:
             description: "Number of times this table has been analyzed by the autovacuum daemon"
 
     pg_prepared_xacts:                                                                                                                                                    
-      query: "SELECT pg_database.datname, pg_authid.rolname, gid FROM pg_prepared_xacts"                                                                                  
+      query: "SELECT gid FROM pg_prepared_xacts"                                                                                  
       master: true                                                                                                                                                        
       cache_seconds: 30                                                                                                                                                   
       metrics:                                                                                                                                                            
@@ -245,7 +245,7 @@ config:
             usage: "GAUGE"                                                                                                                                                
             description: "Owner that was assigned to the transaction"                                                                                                     
         - gid:                                                                                                                                                            
-            usage: "LABEL"                                                                                                                                                
+            usage: "GAUGE"                                                                                                                                                
             description: "Global Transaction Identifier that was assigned to the transaction" 
 
 
