@@ -17,7 +17,7 @@ image:
   #   - myRegistrKeySecretName
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 80
   targetPort: 9187
   name: http
