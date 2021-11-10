@@ -239,7 +239,7 @@ config:
       cache_seconds: 30                                                                                                                                                   
       metrics:
         - transaction:
-            usage: "GAUGE"
+            usage: "COUNTER"
             description: "Number of stale transactions"                                                                                                                                          
 
 
