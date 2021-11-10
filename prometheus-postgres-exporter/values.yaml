@@ -102,7 +102,7 @@ config:
     # Password key inside secret
     #  key:
     port: "5432"
-    database: 'postgres'
+    database: 'dummy'
     sslmode: disable
   datasourceSecret: {}
     # Specifies if datasource should be sourced from secret value in format: postgresql://login:password@hostname:port/dbname?sslmode=disable
