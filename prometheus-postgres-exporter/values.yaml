@@ -422,7 +422,7 @@ config:
             
             
             
-      pg_db_confl:
+    pg_db_confl:
       name: pg_db_confl
       desc: PostgreSQL database conflicts metrics (only available on replica)
       # https://pgpedia.info/p/pg_stat_database_conflicts.html
@@ -430,10 +430,6 @@ config:
 
       ttl: 10
       min_version: 90100
-      tags:
-        - cluster
-        - replica
-
       metrics:
         - datid:
             usage: DISCARD
