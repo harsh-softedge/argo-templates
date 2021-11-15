@@ -427,9 +427,8 @@ config:
       desc: PostgreSQL database conflicts metrics (only available on replica)
       # https://pgpedia.info/p/pg_stat_database_conflicts.html
       query: SELECT * FROM pg_stat_database_conflicts;
-
-      ttl: 10
-      min_version: 90100
+      master: true
+      cache_seconds: 30
       metrics:
         - datid:
             usage: DISCARD
@@ -458,9 +457,8 @@ config:
       name: pg_pubrel
       desc: PostgreSQL publication and relation count
       query: SELECT CURRENT_CATALOG AS datname, pubname, count(*) AS count FROM pg_publication p, LATERAL pg_get_publication_tables(pubname) GROUP BY pubname;
-      ttl: 10
-      min_version: 100000
-
+      master: true
+      cache_seconds: 30
       metrics:
         - datname:
             usage: LABEL
@@ -478,9 +476,8 @@ config:
       name: pg_subrel
       desc: PostgreSQL subscripted relation group by state
       query: SELECT CURRENT_CATALOG AS datname, subname, srsubstate::TEXT AS state, count(*) AS count FROM pg_subscription_rel sr LEFT JOIN pg_stat_subscription  ss ON sr.srsubid = ss.subid GROUP BY 2, 3;
-      ttl: 10
-      min_version: 100000
-
+      master: true
+      cache_seconds: 30
       metrics:
         - datname:
             usage: LABEL
@@ -505,10 +502,8 @@ config:
               pg_total_relation_size(reltoastrelid) AS toastsize
        FROM pg_namespace nsp JOIN pg_class rel ON nsp.oid = rel.relnamespace
         WHERE nspname <> ALL(ARRAY['pg_catalog', 'information_schema']) AND rel.relkind = 'r';
-      ttl: 300
-      timeout: 2
-      min_version: 100000
-      skip: true
+      master: true
+      cache_seconds: 30
       metrics:
         - datname:
            usage: LABEL
@@ -532,13 +527,13 @@ config:
     pg_activity:
       name: pg_activity
       desc: PostgreSQL backend activity group by database and state
-
       query: |
        SELECT datname, state, coalesce(count, 0) AS count, coalesce(max_duration, 0) AS max_duration, coalesce(max_tx_duration, 0) AS max_tx_duration, coalesce(max_conn_duration, 0) AS max_conn_duration FROM
           (SELECT d.datname, a.state FROM pg_database d, unnest(ARRAY ['active','idle','idle in transaction','idle in transaction (aborted)','fastpath function call','disabled']) a(state) WHERE d.datallowconn AND NOT d.datistemplate) base
           LEFT JOIN (SELECT datname, state, count(*) AS count, max(extract(epoch from now() - state_change)) AS max_duration, max(extract(epoch from now() - xact_start))
           AS max_tx_duration, max(extract(epoch from now() - backend_start)) AS max_conn_duration FROM pg_stat_activity WHERE pid <> pg_backend_pid() GROUP BY 1,2) data USING (datname,state);
-      ttl: 10
+      master: true
+      cache_seconds: 30
       metrics:
         - datname:
             usage: LABEL
@@ -562,13 +557,12 @@ config:
     pg_lock:
       name: pg_lock
       desc: PostgreSQL lock distribution by mode and database
-
       query: |
         SELECT datname, mode, coalesce(count, 0) AS count
           FROM (SELECT d.oid AS database, d.datname, l.mode FROM pg_database d, unnest(ARRAY ['AccessShareLock','RowShareLock','RowExclusiveLock','ShareUpdateExclusiveLock', 'ShareLock','ShareRowExclusiveLock','ExclusiveLock','AccessExclusiveLock']) l(mode) WHERE d.datallowconn AND NOT d.datistemplate) base
           LEFT JOIN (SELECT database, mode, count(*) AS count FROM pg_locks WHERE database IS NOT NULL GROUP BY 1, 2) cnt USING (database, mode);
-      min_version: 090400
-
+      master: true
+      cache_seconds: 30          
       metrics:
         - datname:
             usage: LABEL
