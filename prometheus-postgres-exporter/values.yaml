@@ -422,7 +422,82 @@ config:
             
             
             
-            
+      pg_db_confl:
+      name: pg_db_confl
+      desc: PostgreSQL database conflicts metrics (only available on replica)
+      # https://pgpedia.info/p/pg_stat_database_conflicts.html
+      query: SELECT * FROM pg_stat_database_conflicts;
+
+      ttl: 10
+      min_version: 90100
+      tags:
+        - cluster
+        - replica
+
+      metrics:
+        - datid:
+            usage: DISCARD
+        - datname:
+            usage: LABEL
+            description: Name of this database
+        - confl_tablespace:
+            usage: COUNTER
+            description: Number of queries in this database that have been canceled due to dropped tablespaces
+        - confl_lock:
+            usage: COUNTER
+            description: Number of queries in this database that have been canceled due to lock timeouts
+        - confl_snapshot:
+            usage: COUNTER
+            description: Number of queries in this database that have been canceled due to old snapshots
+        - confl_bufferpin:
+            usage: COUNTER
+            description: Number of queries in this database that have been canceled due to pinned buffers
+        - confl_deadlock:
+            usage: COUNTER
+            description: Number of queries in this database that have been canceled due to deadlocks
+
+
+
+    pg_pubrel:
+      name: pg_pubrel
+      desc: PostgreSQL publication and relation count
+      query: SELECT CURRENT_CATALOG AS datname, pubname, count(*) AS count FROM pg_publication p, LATERAL pg_get_publication_tables(pubname) GROUP BY pubname;
+      ttl: 10
+      min_version: 100000
+
+      metrics:
+        - datname:
+            usage: LABEL
+            description: Name of the database which publication belonged
+        - pubname:
+            usage: LABEL
+            description: Name of the publication
+        - count:
+            usage: GAUGE
+            description: Count of relation in the publication
+
+
+
+    pg_subrel:
+      name: pg_subrel
+      desc: PostgreSQL subscripted relation group by state
+      query: SELECT CURRENT_CATALOG AS datname, subname, srsubstate::TEXT AS state, count(*) AS count FROM pg_subscription_rel sr LEFT JOIN pg_stat_subscription  ss ON sr.srsubid = ss.subid GROUP BY 2, 3;
+      ttl: 10
+      min_version: 100000
+
+      metrics:
+        - datname:
+            usage: LABEL
+            description: Name of the database which publication belonged
+        - subname:
+            usage: LABEL
+            description: Name of the subscription
+        - state:
+            usage: LABEL
+            description: State of table in subscription, i=initialize, d=data copy, s=sync, r=ready
+        - count:
+            usage: GAUGE
+            description: Count of relation in this subscription and corresponding state          
             
     pg_table_size:
       desc: PostgreSQL table size metrics, quite slow
