@@ -231,16 +231,7 @@ config:
             description: "Number of times this table has been manually analyzed"
         - autoanalyze_count:
             usage: "COUNTER"
-            description: "Number of times this table has been analyzed by the autovacuum daemon"
-
-    pg_prepared_xacts:                                                                                                                                                    
-      query: "SELECT COUNT(*) FROM pg_prepared_xacts"                                                                                  
-      master: true                                                                                                                                                        
-      cache_seconds: 30                                                                                                                                                   
-      metrics:
-        - count:
-            usage: "GAUGE"
-            description: "Number of stale transactions"                                                                                                                                          
+            description: "Number of times this table has been analyzed by the autovacuum daemon"                                                                                                                                     
 
 
     pg_statio_user_tables:
@@ -291,6 +282,15 @@ config:
         - size_bytes:
             usage: "GAUGE"
             description: "Disk space used by the database"
+            
+    pg_prepared_xacts:                                                                                                                                                    
+      query: "SELECT COUNT(*) FROM pg_prepared_xacts"                                                                                  
+      master: true                                                                                                                                                        
+      cache_seconds: 30                                                                                                                                                   
+      metrics:
+        - count:
+            usage: "GAUGE"
+            description: "Number of stale transactions"     
 
     pg_stat_statements:
       query: "SELECT t2.rolname, t3.datname, queryid, calls, total_time / 1000 as total_time_seconds, min_time / 1000 as min_time_seconds, max_time / 1000 as max_time_seconds, mean_time / 1000 as mean_time_seconds, stddev_time / 1000 as stddev_time_seconds, rows, shared_blks_hit, shared_blks_read, shared_blks_dirtied, shared_blks_written, local_blks_hit, local_blks_read, local_blks_dirtied, local_blks_written, temp_blks_read, temp_blks_written, blk_read_time / 1000 as blk_read_time_seconds, blk_write_time / 1000 as blk_write_time_seconds FROM pg_stat_statements t1 JOIN pg_roles t2 ON (t1.userid=t2.oid) JOIN pg_database t3 ON (t1.dbid=t3.oid) WHERE t2.rolname != 'rdsadmin' AND queryid IS NOT NULL"
@@ -407,123 +407,6 @@ config:
             usage: "HISTOGRAM"
             description: "Idle time of server processes"
       
-    pg_long_running_query_details:
-      query: "SELECT distinct a.datname as database , a.usename as user , round(extract(epoch from statement_timestamp()) - extract(epoch from a.query_start)) as age FROM pg_stat_activity a JOIN pg_locks l ON l.pid = a.pid WHERE age(statement_timestamp(), query_start) > interval U&'10 minutes' limit 5"
-      metrics:
-        - database:
-            usage: "LABEL"
-            description: "Name of the database"
-        - user:
-            usage: "LABEL"
-            description: "Name of the user"
-        - age:
-            usage: "GAUGE"
-            description: "The age in seconds"
-            
-            
-            
-    pg_db_confl:
-      name: pg_db_confl
-      desc: PostgreSQL database conflicts metrics (only available on replica)
-      # https://pgpedia.info/p/pg_stat_database_conflicts.html
-      query: SELECT * FROM pg_stat_database_conflicts;
-      master: true
-      cache_seconds: 30
-      metrics:
-        - datid:
-            usage: DISCARD
-        - datname:
-            usage: LABEL
-            description: Name of this database
-        - confl_tablespace:
-            usage: COUNTER
-            description: Number of queries in this database that have been canceled due to dropped tablespaces
-        - confl_lock:
-            usage: COUNTER
-            description: Number of queries in this database that have been canceled due to lock timeouts
-        - confl_snapshot:
-            usage: COUNTER
-            description: Number of queries in this database that have been canceled due to old snapshots
-        - confl_bufferpin:
-            usage: COUNTER
-            description: Number of queries in this database that have been canceled due to pinned buffers
-        - confl_deadlock:
-            usage: COUNTER
-            description: Number of queries in this database that have been canceled due to deadlocks
-
-
-
-    pg_pubrel:
-      name: pg_pubrel
-      desc: PostgreSQL publication and relation count
-      query: SELECT CURRENT_CATALOG AS datname, pubname, count(*) AS count FROM pg_publication p, LATERAL pg_get_publication_tables(pubname) GROUP BY pubname;
-      master: true
-      cache_seconds: 30
-      metrics:
-        - datname:
-            usage: LABEL
-            description: Name of the database which publication belonged
-        - pubname:
-            usage: LABEL
-            description: Name of the publication
-        - count:
-            usage: GAUGE
-            description: Count of relation in the publication
-
-
-
-    pg_subrel:
-      name: pg_subrel
-      desc: PostgreSQL subscripted relation group by state
-      query: SELECT CURRENT_CATALOG AS datname, subname, srsubstate::TEXT AS state, count(*) AS count FROM pg_subscription_rel sr LEFT JOIN pg_stat_subscription  ss ON sr.srsubid = ss.subid GROUP BY 2, 3;
-      master: true
-      cache_seconds: 30
-      metrics:
-        - datname:
-            usage: LABEL
-            description: Name of the database which publication belonged
-        - subname:
-            usage: LABEL
-            description: Name of the subscription
-        - state:
-            usage: LABEL
-            description: State of table in subscription, i=initialize, d=data copy, s=sync, r=ready
-        - count:
-            usage: GAUGE
-            description: Count of relation in this subscription and corresponding state          
-            
-    pg_table_size:
-      desc: PostgreSQL table size metrics, quite slow
-      query: |
-        SELECT CURRENT_CATALOG AS datname, nsp.nspname || '.' || rel.relname AS relname,
-              pg_total_relation_size(rel.oid)       AS bytes,
-              pg_relation_size(rel.oid)             AS relsize,
-              pg_indexes_size(rel.oid)              AS indexsize,
-              pg_total_relation_size(reltoastrelid) AS toastsize
-       FROM pg_namespace nsp JOIN pg_class rel ON nsp.oid = rel.relnamespace
-        WHERE nspname <> ALL(ARRAY['pg_catalog', 'information_schema']) AND rel.relkind = 'r';
-      master: true
-      cache_seconds: 30
-      metrics:
-        - datname:
-           usage: LABEL
-           description: Database name of this table
-        - relname:
-           usage: LABEL
-           description: Schema qualified table name
-        - bytes:
-           usage: GAUGE
-           description: Total bytes of this table (including toast, index, toast index)
-        - relsize:
-           usage: GAUGE
-           description: Bytes of this table itself (main, vm, fsm)
-        - indexsize:
-           usage: GAUGE
-           description: Bytes of all related indexes of this table
-        - toastsize:
-           usage: GAUGE
-           description: Bytes of toast tables of this table
-           
     pg_activity:
       name: pg_activity
       desc: PostgreSQL backend activity group by database and state
@@ -553,48 +436,7 @@ config:
         - max_conn_duration:
             usage: GAUGE
             description: Max backend session duration since state change among (datname, state)
-            
-    pg_lock:
-      name: pg_lock
-      desc: PostgreSQL lock distribution by mode and database
-      query: |
-        SELECT datname, mode, coalesce(count, 0) AS count
-          FROM (SELECT d.oid AS database, d.datname, l.mode FROM pg_database d, unnest(ARRAY ['AccessShareLock','RowShareLock','RowExclusiveLock','ShareUpdateExclusiveLock', 'ShareLock','ShareRowExclusiveLock','ExclusiveLock','AccessExclusiveLock']) l(mode) WHERE d.datallowconn AND NOT d.datistemplate) base
-          LEFT JOIN (SELECT database, mode, count(*) AS count FROM pg_locks WHERE database IS NOT NULL GROUP BY 1, 2) cnt USING (database, mode);
-      master: true
-      cache_seconds: 30          
-      metrics:
-        - datname:
-            usage: LABEL
-            description: Name of the database this backend is connected to
-        - mode:
-            usage: LABEL
-            description: Name of the lock mode held or desired by this process
-        - count:
-            usage: GAUGE
-            description: Number of locks of corresponding mode and database
-    pg_archiver:
-      name: pg_archiver
-      desc: PostgreSQL archiver process statistics
-      query: SELECT archived_count AS finish_count, failed_count, last_archived_time AS last_finish_time, last_failed_time, extract(EPOCH FROM stats_reset) AS reset_time FROM pg_stat_archiver;
-      master: true
-      cache_seconds: 30
-      metrics:
-        - finish_count:
-            usage: COUNTER
-            description: Number of WAL files that have been successfully archived
-        - failed_count:
-            usage: COUNTER
-            description: Number of failed attempts for archiving WAL files
-        - last_finish_time:
-            usage: COUNTER
-            description: Time of the last successful archive operation
-        - last_failed_time:
-            usage: COUNTER
-            description: Time of the last failed archival operation
-        - reset_time:
-            usage: GAUGE
-            description: Time at which archive statistics were last reset
+
             
 nodeSelector: {}
 
