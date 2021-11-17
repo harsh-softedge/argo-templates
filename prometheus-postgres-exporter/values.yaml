@@ -289,7 +289,7 @@ config:
       cache_seconds: 30                                                                                                                                                   
       metrics:
         - count:
-            usage: "GAUGE"
+            usage: "COUNTER"
             description: "Number of stale transactions"     
 
     pg_stat_statements:
