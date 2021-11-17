@@ -285,8 +285,7 @@ config:
             
     pg_prepared_xacts:                                                                                                                                                    
       query: "SELECT COUNT(*) FROM pg_prepared_xacts"                                                                                  
-      master: true                                                                                                                                                        
-      cache_seconds: 30                                                                                                                                                   
+      master: true                                                                                                                                                                                                                                                                                                       
       metrics:
         - count:
             usage: "COUNTER"
