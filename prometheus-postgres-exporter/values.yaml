@@ -284,24 +284,9 @@ config:
             description: "Disk space used by the database"
             
     pg_prepared_xacts:                                                                                                                                                    
-      query: "SELECT transaction, gid, prepared, owner, database, COUNT(transaction) AS count FROM pg_prepared_xacts GROUP BY transaction, gid, prepared, owner, database"                                                                                 
+      query: "SELECT COUNT(*) as count FROM pg_prepared_xacts"                                                                                 
       master: true                                                                                                                                                                                                                                                                                                       
       metrics:
-        - transaction:
-            usage: "LABEL"
-            description: "Transaction Number of prepared transaction"
-        - gid:
-            usage: "LABEL"
-            description: "Transaction GID of prepared transaction"
-        - prepared:
-            usage: "LABEL"
-            description: "Timestamp at which the transaction was prepared"
-        - owner:
-            usage: "LABEL"
-            description: "Owner of prepared transaction"
-        - database:
-            usage: "LABEL"
-            description: "Database of prepared transaction"
         - count:
             usage: "GAUGE"
             description: "Count Of Every Transaction"
