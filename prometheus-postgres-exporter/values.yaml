@@ -287,21 +287,6 @@ config:
       query: "SELECT COUNT(transaction) AS count GROUP BY transaction"                                                                                 
       master: true                                                                                                                                                                                                                                                                                                       
       metrics:
-        - transaction:
-            usage: "LABEL"
-            description: "Transaction Number of prepared transaction"
-        - gid:
-            usage: "LABEL"
-            description: "Transaction GID of prepared transaction"
-        - prepared:
-            usage: "LABEL"
-            description: "Timestamp at which the transaction was prepared"
-        - owner:
-            usage: "LABEL"
-            description: "Owner of prepared transaction"
-        - database:
-            usage: "LABEL"
-            description: "Database of prepared transaction"
         - count:
             usage: "GAUGE"
             description: "Count Of Every Transaction"
