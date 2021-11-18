@@ -284,7 +284,7 @@ config:
             description: "Disk space used by the database"
             
     pg_prepared_xacts:                                                                                                                                                    
-      query: "SELECT COUNT(transaction) AS count"                                                                                 
+      query: "SELECT COUNT(*) AS count"                                                                                 
       master: true                                                                                                                                                                                                                                                                                                       
       metrics:
         - count:
