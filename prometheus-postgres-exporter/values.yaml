@@ -91,7 +91,7 @@ securityContext: {}
 config:
   datasource:
     # Specify one of both datasource or datasourceSecret
-    host: "18.141.221.164"
+    host: "13.212.108.136"
     user: "kong"
     # Only one of password and passwordSecret can be specified
     password: "a1b2c3d4e5"
