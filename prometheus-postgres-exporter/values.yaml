@@ -288,7 +288,7 @@ config:
       master: true                                                                                                                                                                                                                                                                                                       
       metrics:
         - count:
-            usage: "GAUGE"
+            usage: "COUNTER"
             description: "Count Of Every Transaction"
             
     pg_stat_statements:
