@@ -284,11 +284,17 @@ config:
             description: "Disk space used by the database"
             
     pg_prepared_xacts:                                                                                                                                                    
-      query: "SELECT COUNT(*) as count FROM pg_prepared_xacts"                                                                                 
+      query: " SELECT * FROM ( SELECT database, prepared, owner, gid, transaction, round(extract(epoch FROM now() - prepared)) AS age FROM pg_prepared_xacts) as foo WHERE age > 1800 GROUP BY database, prepared, age, gid, transaction, owner ORDER BY age DESC"                                                                                 
       master: true                                                                                                                                                                                                                                                                                                       
       metrics:
-        - count:
-            usage: "COUNTER"
+        - database:
+            usage: "LABEL"
+            description: "Database Name"
+        - transaction:
+            usage: "LABEL"
+            description: "Transaction ID"
+        - age:
+            usage: "Gauge"
             description: "Count Of Every Transaction"
             
     pg_stat_statements:
