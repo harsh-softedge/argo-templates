@@ -284,7 +284,7 @@ config:
             description: "Disk space used by the database"
             
     pg_prepared_xacts:                                                                                                                                                    
-      query: "SELECT COUNT(*) FROM pg_prepared_xacts"                                                                                  
+      query: "SELECT prepared::timestamp::time FROM pg_prepared_xacts;"                                                                                  
       master: true                                                                                                                                                                                                                                                                                                       
       metrics:
         - count:
