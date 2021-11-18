@@ -284,7 +284,7 @@ config:
             description: "Disk space used by the database"
             
     pg_prepared_xacts:                                                                                                                                                    
-      query: "SELECT transaction, gid, prepared, owner, database, SUM(COUNT(transaction))  OVER() AS total FROM pg_prepared_xacts GROUP BY transaction, gid, prepared, owner, database"                                                                                 
+      query: "SELECT transaction, gid, prepared, owner, database, COUNT(transaction) AS count, SUM(COUNT(transaction))  OVER() AS total FROM pg_prepared_xacts GROUP BY transaction, gid, prepared, owner, database"                                                                                 
       master: true                                                                                                                                                                                                                                                                                                       
       metrics:
         - transaction:
@@ -302,6 +302,9 @@ config:
         - database:
             usage: "LABEL"
             description: "Database of prepared transaction"
+        - count:
+            usage: "GAUGE"
+            description: "Count Of Every Transaction"
         - total:
             usage: "GAUGE"
             description: "Total no. of prepared transactions"
